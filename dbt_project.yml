@@ -1,0 +1,54 @@
+
+# Name your project! Project names should contain only lowercase characters
+# and underscores. A good package name should reflect your organization's
+# name or the intended use of these models
+name: 'selly_dbt'
+version: '1.0.0'
+config-version: 2
+
+# This setting configures which "profile" dbt uses for this project.
+profile: 'selly_dbt'
+
+# These configurations specify where dbt should look for different types of files.
+# The `model-paths` config, for example, states that models in this project can be
+# found in the "models/" directory. You probably won't need to change these!
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"  # directory which will store compiled SQL files
+clean-targets:         # directories to be removed by `dbt clean`
+  - "target"
+  - "dbt_packages"
+
+
+quoting:
+  database: true
+# Temporarily disabling the behavior of the ExtendedNameTransformer on table/schema names, see (issue #1785)
+# all schemas should be unquoted
+  schema: false
+  identifier: true
+
+# You can define configurations for models in the `source-paths` directory here.
+# Using these configurations, you can enable or disable models, change how they
+# are materialized, and more!
+models:
+  selly_dbt:
+    +materialized: table
+    generated:
+      airbyte_ctes:
+        +tags: airbyte_internal_cte
+        +materialized: ephemeral
+      airbyte_incremental:
+        +tags: incremental_tables
+        +materialized: incremental
+        +on_schema_change: sync_all_columns
+      airbyte_tables:
+        +tags: normalized_tables
+        +materialized: table
+      airbyte_views:
+        +tags: airbyte_internal_views
+        +materialized: view
